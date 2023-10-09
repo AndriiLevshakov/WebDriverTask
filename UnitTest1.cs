@@ -29,27 +29,10 @@ namespace TestProject1
             Actions actions = new Actions(driver);
             loginInput.SendKeys(email);
             passwordInput.SendKeys(password);
-            actions.SendKeys(passwordInput, Keys.Enter).Build().Perform();
-            //LoginButton.Click();
-
+            actions.SendKeys(passwordInput, Keys.Enter).Build().Perform();            
         }
 
-    }
-
-    public class GMXAcceptPage
-    {
-        private IWebDriver driver;
-        private WebDriverWait wait;
-    
-
-        public void GMXLoginPage(IWebDriver driver)
-        {
-            this.driver = driver;
-            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
-        }
-
-
-    }
+    }    
 
     public class GMXLoginPage
     {
@@ -59,42 +42,34 @@ namespace TestProject1
         public GMXLoginPage(IWebDriver driver)
         {
             this.driver = driver;
-            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
         }
-
-        //IWebElement logInButton => wait.Until(ExpectedConditions.ElementExists(By.CssSelector("#login-button")));
-
-        
 
         IWebElement loginInput => wait.Until(ExpectedConditions.ElementExists(By.CssSelector("body > div > div > main > div._25Ti7VOS > form > div._3c6HWgJy > div > label > input")));
         IWebElement passwordInput => wait.Until(ExpectedConditions.ElementExists(By.CssSelector("body > div > div > main > div._25Ti7VOS > form > div:nth-child(2) > div > label > input")));
-        //IWebElement continueButton = wait.Until(ExpectedConditions.ElementToBeClickable(By.CssSelector("body > div > div > main > div._25Ti7VOS > form > button")));ublic IWebElement LoginButton => wait.Until(ExpectedConditions.ElementExists(By.CssSelector("#app-root > form > div._3upfBFYx._1XeqbOeu > button"))); // Use ElementToBeClickable here
 
         public void Login(string email, string password)
         {
             Actions actions = new Actions(driver);
-            //logInButton.Click();
+            
             loginInput.SendKeys(email);
             passwordInput.SendKeys(password);
             actions.SendKeys(passwordInput, Keys.Enter).Build().Perform();
-            //LoginButton.Click();
-
         }
-
     }
 
     public class WebTests
         { 
             IWebDriver driver;
             WebDriverWait wait;
-            
+
+        string newNickName = "Andrii Levshakov2";            
 
             [SetUp]
             public void Setup()
             {
                 driver = new ChromeDriver();
                 wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
-
             }
                         
             [Test]
@@ -109,7 +84,6 @@ namespace TestProject1
                 wait.Until(driver => driver.Url.Contains("desktop"));
 
                 Assert.IsTrue(driver.Url.Contains("desktop"), "Login failed!");
-
             }
 
             [Test]
@@ -119,19 +93,7 @@ namespace TestProject1
 
                 UkrNetLoginPage ukrNetLoginPage = new UkrNetLoginPage(driver);
 
-                ukrNetLoginPage.Login("wrongLogin", "webdrivertest464");
-
-                //WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
-                //bool urlDoesNotContainDesktop = wait.Until(driver => !driver.Url.Contains("desktop"));
-
-                // Assert: Verify that the URL does not contain "desktop"
-                //Assert.IsTrue(urlDoesNotContainDesktop, "Login succeeded unexpectedly!");
-
-                //IWebElement errorMessageElement = wait.Until(ExpectedConditions.ElementExists(By.XPath("/html/body/div/div/main/div[1]/form/p/text()[1]")));
-
-                //Assert.IsNotNull(errorMessageElement, "Exact link not found.");
-
-                //WebDriverWait wait = new WebDriverWait (driver, TimeSpan.FromSeconds(30));
+                ukrNetLoginPage.Login("wrongLogin", "webdrivertest464");                
 
                 wait.Until(driver => driver.Url.Contains("accounts"));
                                 
@@ -155,7 +117,7 @@ namespace TestProject1
             }
 
             [Test]
-            public void EmailSending()
+            public void EmailSendingFromUkrNet()
             {
                 driver.Navigate().GoToUrl("https://accounts.ukr.net/login?client_id=9GLooZH9KjbBlWnuLkVX");
 
@@ -170,11 +132,7 @@ namespace TestProject1
                 IWebElement receiver = wait.Until(ExpectedConditions.ElementExists(By.CssSelector("#screens > div > div.screen__content > section.sendmsg__form > div:nth-child(1) > div.sendmsg__form-label-field.auto.cropped.ui-sortable > input.input")));
 
                 receiver.SendKeys("andriilevshakov@gmx.com");
-
-                //IWebElement emailBody = driver.FindElement(By.Id("tinymce"));
-
-                //emailBody.SendKeys("Andreas");
-
+                
                 Actions action = new Actions(driver);
 
                 action.SendKeys(receiver, Keys.Tab).Build().Perform();
@@ -183,18 +141,16 @@ namespace TestProject1
 
                 action.SendKeys(Keys.Tab).Build().Perform();
 
-                action.SendKeys("Andreas").Build().Perform();
+            Thread.Sleep(2000);
+
+            action.SendKeys("Andreas").Build().Perform();
 
                 action.SendKeys(Keys.Tab).Build().Perform();
 
                 action.SendKeys(Keys.Enter).Build().Perform();
 
                 IWebElement conf = wait.Until(ExpectedConditions.ElementExists(By.CssSelector("#screens > div > div.sendmsg__ads.show.ready > div.sendmsg__ads-sending > div.sendmsg__ads-ready")));
-
-                //Console.ReadLine();
-
-                //Console.WriteLine("done");
-
+                            
                 Assert.IsTrue(conf.Displayed, "The button is not displayed on the page.");
             }
 
@@ -231,34 +187,109 @@ namespace TestProject1
 
             Thread.Sleep(5000);
 
-            //driver.SwitchTo().Frame(4);
+            driver.SwitchTo().Frame("mail");
 
-            IWebElement unreadEmailPage = driver.FindElement(By.CssSelector("#id6b > td.last > div.container-relative > div.name"));
+            IWebElement unreadEmailPage = driver.FindElement(By.XPath("//tr[@class='new'][contains(@title, Levshakov)][1]"));
 
             unreadEmailPage.Click();
 
+            Thread.Sleep(5000);
 
-            Console.ReadLine();
+            driver.SwitchTo().Frame("mail-detail");
 
-            //wait.Until(driver => driver.Url.Contains("navigator"));
+            IWebElement emailText = driver.FindElement(By.XPath("//body"));
 
-            //Assert.IsTrue(driver.Url.Contains("navigator"), "Login failed!");
+            string emailTextString = emailText.Text;
 
+            if (emailTextString == "Andreas")
+            {                
+                driver.SwitchTo().ParentFrame();
+
+                IWebElement respondField = wait.Until(ExpectedConditions.ElementExists(By.XPath("//textarea")));
+
+                respondField.SendKeys(newNickName);
+
+                IWebElement sendRespondButton = driver.FindElement(By.XPath("//button[@id='send']"));
+
+                sendRespondButton.Click();
+            }
+            else
+            {
+                throw new Exception("Email Text is not correct");
+            }
+
+            IWebElement conf = wait.Until(ExpectedConditions.ElementExists(By.XPath("//div[contains(@class, 'success')]")));
+
+            Assert.IsTrue(conf.Displayed, "Login failed!");
         }
 
         [Test]
-        public void TestGMX2()
+        public void TestChangeNickName()
         {
-            driver.Navigate().GoToUrl("https://navigator-bs.gmx.com/home?sid=6a6da4ad211cf0ec777f500eacd4e983c880c57b5f1b9999038598b42a92e008c4f6838da3596bae48c2deb0b1db8749");
+            Actions action = new Actions(driver);
 
-            Console.ReadLine();
+            driver.Navigate().GoToUrl("https://accounts.ukr.net/login?client_id=9GLooZH9KjbBlWnuLkVX");
+
+            UkrNetLoginPage ukrNetLoginPage = new UkrNetLoginPage(driver);
+
+            ukrNetLoginPage.Login("webdrivertest4646", "webdrivertest464");
+
+            Thread.Sleep(5000);
+            
+            driver.Navigate().GoToUrl("https://mail.ukr.net/desktop#settings/account");
+
+            IWebElement nickNameField = wait.Until(ExpectedConditions.ElementExists(By.XPath("//input[@name='name']")));
+
+            nickNameField.Clear();
+
+            nickNameField.SendKeys("Andrii Levshakov2");
+
+            Thread.Sleep(2000);
+
+            action.SendKeys(Keys.Enter).Build().Perform();
+
+            Thread.Sleep(2000);
+
+            driver.Navigate().GoToUrl("https://mail.ukr.net/desktop#settings/account");
+
+            Thread.Sleep(2000);
+
+            IWebElement nickNameField2 = wait.Until(ExpectedConditions.ElementExists(By.XPath("//*[@value='Andrii Levshakov2']")));
+
+            Assert.IsTrue(nickNameField2.Displayed);
         }
 
 
             [TearDown]
             public void Teardown()
             {
-                driver.Dispose();
+            /*
+            Actions action = new Actions(driver);
+
+            driver.Navigate().GoToUrl("https://accounts.ukr.net/login?client_id=9GLooZH9KjbBlWnuLkVX");
+
+            UkrNetLoginPage ukrNetLoginPage = new UkrNetLoginPage(driver);
+
+            ukrNetLoginPage.Login("webdrivertest4646", "webdrivertest464");
+
+            Thread.Sleep(5000);
+
+            driver.Navigate().GoToUrl("https://mail.ukr.net/desktop#settings/account");
+
+            IWebElement nickNameField = wait.Until(ExpectedConditions.ElementExists(By.XPath("//input [@name='name']")));
+
+            nickNameField.Clear();
+
+            nickNameField.SendKeys("Andrii Levshakov");
+
+            Thread.Sleep(2000);
+
+            //IWebElement saveButton = driver.FindElement(By.XPath("//button[@type='submit']"));
+
+            action.SendKeys(Keys.Enter).Build().Perform();
+            */
+
+            driver.Dispose();
             }
         }
 
